@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Candy Rhythm</title>
+  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="magic-attack-d.css?v=3">
+  <link rel="stylesheet" href="countdown-assets.css?v=1">
+</head>
+<body>
+  <main class="game-shell" aria-label="Candy rhythm game">
+    <section id="gameStage" class="game-stage" aria-label="Rhythm game stage">
+      <audio
+        id="gameBgm"
+        preload="auto"
+        src="assets/audio/game-bgm.m4a"
+        aria-hidden="true"
+      ></audio>
+
+      <img
+        class="scene-background"
+        src="assets/backgrounds/game-background.png"
+        alt=""
+        draggable="false"
+      >
+
+      <svg
+        class="track-layer"
+        viewBox="0 0 2048 1152"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="bladeBodyGradient" x1="-150" y1="0" x2="150" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#b76cff" stop-opacity="0.06" />
+            <stop offset="0.52" stop-color="#8b8cff" stop-opacity="0.16" />
+            <stop offset="0.82" stop-color="#8deaff" stop-opacity="0.3" />
+            <stop offset="1" stop-color="#f4ffff" stop-opacity="0.68" />
+          </linearGradient>
+          <linearGradient id="trackGradient" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0" stop-color="#d18aff" stop-opacity="0.98" />
+            <stop offset="0.46" stop-color="#778cff" stop-opacity="0.98" />
+            <stop offset="1" stop-color="#c6f8ff" stop-opacity="1" />
+          </linearGradient>
+          <filter id="trackGlow" x="-30%" y="-150%" width="160%" height="400%">
+            <feGaussianBlur stdDeviation="17" />
+          </filter>
+          <filter id="trackMiddleGlow" x="-30%" y="-150%" width="160%" height="400%">
+            <feGaussianBlur stdDeviation="6" />
+          </filter>
+          <filter id="trackInnerGlow" x="-30%" y="-150%" width="160%" height="400%">
+            <feGaussianBlur stdDeviation="3.2" />
+          </filter>
+        </defs>
+
+        <path
+          class="track-halo"
+              d="M 1765 470 C 1545 445 1310 565 1035 545"
+        />
+        <path
+          id="travelPath"
+          class="track-core"
+          d="M 1765 470 C 1545 445 1310 565 1035 545"
+        />
+        <path
+          class="track-flow"
+          d="M 1765 470 C 1545 445 1310 565 1035 545"
+        />
+        <g class="track-sparkles">
+          <g transform="translate(1668 469)" style="--sparkle-delay: -0.2s; --sparkle-duration: 2.1s">
+            <path class="track-sparkle" d="M 0 -12 C 2 -3 3 -2 12 0 C 3 2 2 3 0 12 C -2 3 -3 2 -12 0 C -3 -2 -2 -3 0 -12 Z" />
+          </g>
+          <g transform="translate(1555 477)" style="--sparkle-delay: -1.35s; --sparkle-duration: 2.4s">
+            <path class="track-sparkle track-sparkle-small" d="M 0 -12 C 2 -3 3 -2 12 0 C 3 2 2 3 0 12 C -2 3 -3 2 -12 0 C -3 -2 -2 -3 0 -12 Z" />
+          </g>
+          <g transform="translate(1440 506)" style="--sparkle-delay: -0.75s; --sparkle-duration: 2.25s">
+            <path class="track-sparkle" d="M 0 -12 C 2 -3 3 -2 12 0 C 3 2 2 3 0 12 C -2 3 -3 2 -12 0 C -3 -2 -2 -3 0 -12 Z" />
+          </g>
+          <g transform="translate(1322 532)" style="--sparkle-delay: -1.8s; --sparkle-duration: 2.5s">
+            <path class="track-sparkle track-sparkle-small" d="M 0 -12 C 2 -3 3 -2 12 0 C 3 2 2 3 0 12 C -2 3 -3 2 -12 0 C -3 -2 -2 -3 0 -12 Z" />
+          </g>
+          <g transform="translate(1202 548)" style="--sparkle-delay: -0.45s; --sparkle-duration: 2.3s">
+            <path class="track-sparkle" d="M 0 -12 C 2 -3 3 -2 12 0 C 3 2 2 3 0 12 C -2 3 -3 2 -12 0 C -3 -2 -2 -3 0 -12 Z" />
+          </g>
+          <g transform="translate(1090 549)" style="--sparkle-delay: -1.15s; --sparkle-duration: 2.2s">
+            <path class="track-sparkle track-sparkle-small" d="M 0 -12 C 2 -3 3 -2 12 0 C 3 2 2 3 0 12 C -2 3 -3 2 -12 0 C -3 -2 -2 -3 0 -12 Z" />
+          </g>
+        </g>
+      </svg>
+
+      <div id="notesLayer" class="notes-layer" aria-hidden="true"></div>
+
+      <div id="hitTarget" class="hit-target" aria-label="Hit target">
+        <img
+          src="assets/ui/judge-point.png"
+          alt=""
+          draggable="false"
+        >
+      </div>
+
+      <div id="characterLayer" class="character-layer" aria-hidden="true">
+        <img
+          id="characterIdle"
+          class="character-frame is-active"
+          src="assets/characters/penguin-idle.png"
+          alt=""
+          draggable="false"
+        >
+        <img
+          id="characterHit"
+          class="character-frame"
+          src="assets/characters/penguin-success.png"
+          alt=""
+          draggable="false"
+        >
+        <img
+          id="characterMiss"
+          class="character-frame"
+          src="assets/characters/penguin-miss.png"
+          alt=""
+          draggable="false"
+        >
+      </div>
+
+
+      <header class="hud" aria-live="polite">
+        <div class="hud-score-panel">
+          <span class="hud-score-star" aria-hidden="true"></span>
+          <strong id="scoreValue" class="hud-score-value">0</strong>
+        </div>
+        <div class="hud-controls">
+          <div class="hud-combo-group">
+            <span class="hud-combo-label-panel">COMBO</span>
+            <strong id="comboValue" class="hud-combo-value-panel">0</strong>
+          </div>
+          <button
+            id="pauseButton"
+            class="hud-pause-button"
+            type="button"
+            aria-label="Pause game"
+            aria-pressed="false"
+            disabled
+          >
+            <span class="pause-glyph" aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <div
+        id="rhythmProgressHud"
+        class="rhythm-progress-hud"
+        aria-label="Music progress and current grade"
+        hidden
+      >
+        <div id="ratingStars" class="rating-stars" role="img" aria-label="Current grade: 0 of 5 stars">
+          <span class="rating-star" data-rating-star aria-hidden="true"></span>
+          <span class="rating-star" data-rating-star aria-hidden="true"></span>
+          <span class="rating-star" data-rating-star aria-hidden="true"></span>
+          <span class="rating-star" data-rating-star aria-hidden="true"></span>
+          <span class="rating-star" data-rating-star aria-hidden="true"></span>
+        </div>
+        <div
+          id="musicProgress"
+          class="music-progress"
+          role="progressbar"
+          aria-label="Music progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <span id="musicProgressFill" class="music-progress-fill"></span>
+        </div>
+      </div>
+
+      <div id="judgementText" class="judgement-text" aria-live="assertive">
+        <img id="judgementImage" class="judgement-image" alt="" draggable="false" />
+      </div>
+      <div id="countdown" class="countdown" aria-live="assertive" hidden>3</div>
+
+      <section id="startOverlay" class="screen-overlay start-overlay">
+        <button id="startButton" class="primary-button" type="button" disabled>START</button>
+        <p id="audioLoadError" class="audio-load-error" role="alert" hidden>MUSIC FAILED TO LOAD</p>
+      </section>
+
+      <section id="resultOverlay" class="screen-overlay result-overlay" hidden aria-label="Game result">
+        <div class="result-card">
+          <p class="result-kicker">RESULT</p>
+          <p class="result-row"><span>SCORE</span><strong id="resultScore">000000</strong></p>
+          <p class="result-row"><span>MAX COMBO</span><strong id="resultCombo">0</strong></p>
+          <button id="restartButton" class="primary-button" type="button">RESTART</button>
+        </div>
+      </section>
+
+      <section id="audioRecoveryOverlay" class="screen-overlay" hidden aria-label="Audio recovery">
+        <div class="pause-card">
+          <p id="audioRecoveryMessage" class="result-kicker" role="alert">点击继续播放</p>
+          <button id="audioRecoveryButton" class="primary-button" type="button">点击继续播放</button>
+        </div>
+      </section>
+
+      <section id="pauseOverlay" class="screen-overlay pause-overlay" hidden aria-label="Game paused">
+        <div class="pause-card">
+          <p class="result-kicker">PAUSED</p>
+          <button id="resumeButton" class="primary-button" type="button">RESUME</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="game-core.js"></script>
+  <script src="game-chart.js"></script>
+  <script src="audio-clock.js"></script>
+  <script src="embed-bridge.js"></script>
+  <script src="app.js?v=5"></script>
+  <script src="magic-attack-d.js?v=9"></script>
+  <script src="countdown-assets.js?v=1"></script>
+</body>
+</html>

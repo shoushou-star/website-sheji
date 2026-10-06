@@ -1,0 +1,1 @@
+var e=`/games/candy-chase/assets/pregame-intro-UYv4V1aM.mp4`,t=`/games/candy-chase/assets/settlement-intro-817LF-Kz.mp4`,n=`/games/candy-chase/assets/settlement-loop-DEU6Uckw.mp4`;export{t as n,e as r,n as t};
