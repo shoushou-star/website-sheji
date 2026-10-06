@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CANDY CHASE 网页音乐节奏游戏：游戏视觉设计、UI设计、交互设计与前端实现。">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./candy-chase-case.css">
+    <script src="./candy-chase-case.js" defer></script>
+    <title>CANDY CHASE · 网页音乐节奏游戏</title>
+  </head>
+  <body>
+    <main class="candy-case">
+      <nav class="candy-case-nav" aria-label="案例导航">
+        <a href="./#candy-chase-feature" data-return-portfolio>← 返回作品集</a>
+        <span>CANDY CHASE</span>
+        <a href="#intro" data-scroll-intro>项目介绍 ↓</a>
+      </nav>
+
+      <section id="play" class="candy-case-play" aria-label="CANDY CHASE 游戏试玩">
+        <div class="candy-game-shell" data-game-shell data-game-state="loading">
+          <iframe title="CANDY CHASE 可试玩游戏" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          <div class="candy-game-message" data-game-loading role="status">
+            <span class="candy-game-spinner" aria-hidden="true"></span>
+            <p>正在加载游戏…</p>
+          </div>
+          <div class="candy-game-message" data-game-error role="alert" hidden>
+            <p>游戏暂时未能加载</p>
+            <div class="candy-game-actions">
+              <button type="button" data-game-retry>重新加载</button>
+              <a href="./#candy-chase-feature" data-return-portfolio>返回作品集</a>
+            </div>
+          </div>
+          <div class="candy-game-mobile" data-game-mobile hidden>
+            <p>建议使用电脑体验完整游戏</p>
+            <a href="#intro" data-scroll-intro>查看项目介绍 ↓</a>
+          </div>
+        </div>
+        <noscript><p class="candy-case-note">请启用 JavaScript 加载游戏。<a href="./#candy-chase-feature">返回作品集</a></p></noscript>
+        <p class="candy-case-note">选择 PIKO，进入糖果幻想舞台。</p>
+      </section>
+
+      <section id="intro" class="candy-case-intro" aria-labelledby="candy-case-title">
+        <div class="project-case-summary">
+          <div>
+            <p class="project-case-kicker">GAME DESIGN · INTERACTIVE</p>
+            <h1 id="candy-case-title" class="project-case-title">CANDY CHASE</h1>
+            <p class="project-case-description">CANDY CHASE 是一款以糖果幻想舞台为主题的网页音乐节奏游戏。玩家选择角色 PIKO，经过舞台开场动画进入节奏挑战，通过精准判定完成演出，并获得实时成绩与星级评价。</p>
+          </div>
+          <dl class="project-case-facts">
+            <div><dt>项目类型</dt><dd>网页音乐节奏游戏</dd></div>
+            <div><dt>年份</dt><dd>2026</dd></div>
+            <div class="candy-case-fact-wide"><dt>设计与实现</dt><dd>游戏视觉设计 / UI设计 / 交互设计 / 前端实现</dd></div>
+            <div class="candy-case-fact-wide"><dt>工具</dt><dd>Figma / React / TypeScript / AI辅助开发</dd></div>
+          </dl>
+        </div>
+        <div class="candy-case-flow">
+          <h2>完整游玩流程</h2>
+          <p>游戏体验由加载页、游戏大厅、角色选择、开场演出、节奏玩法和成绩结算组成，形成一条完整且连续的游玩流程。</p>
+        </div>
+        <a class="candy-case-footer-link" href="./#candy-chase-feature" data-return-portfolio>← 返回作品集</a>
+      </section>
+    </main>
+  </body>
+</html>
