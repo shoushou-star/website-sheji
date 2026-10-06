@@ -1,0 +1,11 @@
+# Local Netlify folder
+.netlify
+
+# Generated publish output and local safety copies
+tmp/
+*.bak
+*.bak2
+
+# Managed implementation worktrees and SDD scratch ledgers
+.worktrees/
+.superpowers/
