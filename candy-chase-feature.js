@@ -3,9 +3,16 @@
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const desktopPointer = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 810px)');
+  // The shipped Framer runtime emits this mark from its final layout-effect hook.
+  const hydrationMark = 'framer-hydration-layout-effects-end';
+  let framerHydrated = false;
+  const hasFramerHydrated = () => {
+    framerHydrated ||= performance.getEntriesByName(hydrationMark, 'mark').length > 0;
+    return framerHydrated;
+  };
 
   function mountCandyChaseFeature() {
-    if (document.readyState === 'loading') return;
+    if (document.readyState === 'loading' || !hasFramerHydrated()) return;
     const project = document.querySelector('#project');
     if (!project?.parentElement) return;
 
@@ -74,8 +81,8 @@
   const scheduleMount = () => {
     if (scheduled) return;
     scheduled = true;
-    // Yield to Framer hydration; recheck the live project node after it settles.
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+    // Coalesce observer maintenance; hydration readiness is checked separately.
+    requestAnimationFrame(() => {
       scheduled = false;
       for (const [feature, controller] of mediaControllers) {
         if (!feature.isConnected) {
@@ -85,14 +92,23 @@
         }
       }
       mountCandyChaseFeature();
-    }));
+    });
   };
 
   window.mountCandyChaseFeature = mountCandyChaseFeature;
   const start = () => {
     new MutationObserver(scheduleMount).observe(document.querySelector('#main') || document.body, { childList: true, subtree: true });
-    document.querySelector('script[data-framer-bundle="main"]')?.addEventListener('load', scheduleMount, { once: true });
-    scheduleMount();
+    if (hasFramerHydrated()) {
+      scheduleMount();
+      return;
+    }
+    const hydrationObserver = new PerformanceObserver(entries => {
+      if (!entries.getEntries().some(entry => entry.name === hydrationMark)) return;
+      framerHydrated = true;
+      hydrationObserver.disconnect();
+      scheduleMount();
+    });
+    hydrationObserver.observe({ type: 'mark', buffered: true });
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();

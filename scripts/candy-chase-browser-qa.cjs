@@ -8,9 +8,34 @@ const baseUrl = baseUrlIndex >= 0 ? process.argv[baseUrlIndex + 1] : 'http://127
 const artifactIndex = process.argv.indexOf('--artifact-dir');
 const artifactDir = artifactIndex >= 0 ? process.argv[artifactIndex + 1] : null;
 
-async function checkFeature(page) {
+async function loadAfterHydrationSignal(page) {
+  // Keep the third-party emitter controlled; test the real browser Performance API
+  // and feature boundary against the hydration mark verified in Framer's bundle.
+  await page.route('https://framerusercontent.com/sites/**', route => route.abort());
   await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
   await page.locator('#project').waitFor();
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.equal(await page.locator('#candy-chase-feature').count(), 0, 'DOMContentLoaded and animation frames must not mount before Framer hydration');
+  await page.evaluate(() => {
+    document.querySelector('script[data-framer-bundle="main"]').dispatchEvent(new Event('load'));
+    window.mountCandyChaseFeature();
+    window.mountCandyChaseFeature();
+  });
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.equal(await page.locator('#candy-chase-feature').count(), 0, 'Bundle load and explicit mount calls must not bypass the hydration gate');
+  await page.evaluate(() => performance.mark('framer-hydration-layout-effects-end'));
+  await page.locator('#candy-chase-feature').waitFor();
+  await page.evaluate(() => {
+    performance.mark('framer-hydration-layout-effects-end');
+    window.mountCandyChaseFeature();
+    window.mountCandyChaseFeature();
+  });
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.equal(await page.locator('#candy-chase-feature').count(), 1, 'The verified Framer hydration signal mounts exactly one feature');
+}
+
+async function checkFeature(page) {
+  await loadAfterHydrationSignal(page);
   const feature = page.locator('#candy-chase-feature');
   await feature.waitFor();
   assert.equal(await feature.count(), 1, 'Mount one CANDY CHASE feature before the project section');
@@ -32,7 +57,7 @@ async function checkFeature(page) {
     document.querySelector('#candy-chase-feature').remove();
   });
   await page.waitForFunction(() => document.querySelector('#candy-chase-feature')?.nextElementSibling?.id === 'project');
-  assert.equal(await feature.count(), 1, 'Observer remounts one feature after hydration replaces it');
+  assert.equal(await feature.count(), 1, 'Observer remounts one feature after its node is removed');
   await feature.scrollIntoViewIfNeeded();
   assert.equal(await feature.evaluate(element => element.scrollWidth <= element.clientWidth), true);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'No page horizontal overflow');
@@ -65,6 +90,15 @@ async function checkExistingPortfolio(page) {
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'msedge' });
   try {
+    const earlySignalContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const earlySignalPage = await earlySignalContext.newPage();
+    await earlySignalPage.route('https://framerusercontent.com/sites/**', route => route.abort());
+    await earlySignalPage.addInitScript(() => performance.mark('framer-hydration-layout-effects-end'));
+    await earlySignalPage.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
+    await earlySignalPage.locator('#candy-chase-feature').waitFor();
+    assert.equal(await earlySignalPage.locator('#candy-chase-feature').count(), 1, 'A previously emitted hydration mark is handled once');
+    await earlySignalContext.close();
+    console.log('PASS hydration signal already present before feature script: one feature');
     const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await desktop.newPage();
     const feature = await checkFeature(page);
@@ -100,6 +134,7 @@ async function checkExistingPortfolio(page) {
       console.log(`PASS ${scenario.name}: placement, cover, idempotent remount, no preview on hover/focus, no overflow`);
       await context.close();
     }
+    console.log('PASS delayed hydration gate in all contexts: zero before verified mark, no bypass on bundle load or explicit calls, one after repeated marks');
     console.log('PASS existing portfolio in all contexts: hero, About Me, four ordinary projects, keyboard modal open/Escape close/focus restore');
   } finally {
     await browser.close();
