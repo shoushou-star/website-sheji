@@ -40,6 +40,24 @@ for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) 
   if (!/type=["'](?:module|application\/|text\/template)/i.test(match[1])) new Function(match[2]);
 }
 let size = 0;
+// Refuse stale output before copying. Never silently ship a previous allowlist
+// entry, follow output symlinks, or delete files to make the check pass.
+function outputEntries(directory, prefix = '') {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const relative = path.posix.join(prefix, entry.name);
+    return entry.isDirectory()
+      ? outputEntries(path.join(directory, entry.name), relative)
+      : [{ relative, regular: entry.isFile() }];
+  });
+}
+function rejectExtraOutput() {
+  const unexpected = outputEntries(output)
+    .filter(entry => !entry.regular || !files.has(entry.relative))
+    .map(entry => entry.relative).sort();
+  if (unexpected.length) throw new Error(`Unexpected publish output entries: ${unexpected.join(', ')}`);
+}
+rejectExtraOutput();
 for (const file of files) {
   const input = path.join(root, file);
   if (!fs.existsSync(input)) throw new Error(`Missing published asset: ${file}`);
@@ -47,5 +65,10 @@ for (const file of files) {
   fs.mkdirSync(path.dirname(destination), { recursive: true });
   fs.copyFileSync(input, destination);
   size += fs.statSync(input).size;
+}
+rejectExtraOutput();
+const actualFiles = outputEntries(output).map(entry => entry.relative);
+if (actualFiles.length !== files.size || actualFiles.some(file => !files.has(file))) {
+  throw new Error('Publish output membership does not match the allowlist');
 }
 console.log(JSON.stringify({ output, files: files.size, megabytes: +(size / 1024 / 1024).toFixed(2) }));

@@ -67,4 +67,9 @@ test('keeps workspace debris and game metadata out of the explicit publish allow
   const output = path.join(fixture, 'tmp/netlify-publish-0904');
   assert.deepEqual(fs.readFileSync(path.join(output, 'games/candy-chase/nested/assets/runtime.bin')), Buffer.from([0, 255, 128]));
   for (const file of forbidden) assert.equal(fs.existsSync(path.join(output, file)), false, file);
+  const staleFile = path.join(output, 'stale-private-note.txt');
+  fs.writeFileSync(staleFile, 'must not ship');
+  assert.throws(() => execFileSync(process.execPath, ['prepare-netlify.cjs'], { cwd: fixture, stdio: 'pipe' }),
+    error => /Unexpected publish output entries: stale-private-note\.txt/.test(error.stderr.toString()));
+  assert.equal(fs.readFileSync(staleFile, 'utf8'), 'must not ship', 'Refuse stale output without deleting it');
 });
