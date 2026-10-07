@@ -13,6 +13,7 @@ for (const [folder, count] of [['khaki-girl', 3], ['lumi-case-study', 6]]) {
 }
 for (let i = 1; i <= 13; i++) files.add(`assets/let-it-beer/page-${String(i).padStart(2, '0')}.jpg`);
 for (let i = 2; i <= 14; i++) files.add(`assets/anxiety-event/page-${String(i).padStart(2, '0')}.jpg`);
+for (let i = 1; i <= 6; i++) files.add(`assets/placeholder-project/page-${i}.png`);
 for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
   if (!/type=["'](?:module|application\/|text\/template)/i.test(match[1])) new Function(match[2]);
 }
