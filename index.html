@@ -1673,6 +1673,31 @@
 			object-fit: cover;
 		}
 
+		.project-case-video-wrap {
+			position: relative;
+		}
+
+		.project-case-play {
+			bottom: 5%;
+			display: block;
+			left: 50%;
+			position: absolute;
+			transform: translateX(-50%);
+			transition: transform 200ms ease;
+			width: clamp(150px, 21%, 230px);
+		}
+
+		.project-case-play img {
+			display: block;
+			filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.32));
+			width: 100%;
+		}
+
+		.project-case-play:hover,
+		.project-case-play:focus-visible {
+			transform: translateX(-50%) scale(1.06);
+		}
+
 		.project-case-summary {
 			display: grid;
 			gap: 18px 36px;
@@ -2424,6 +2449,7 @@
 					description: "占位案例：新版块用于预留下一个项目位置，封面与内容页均为占位图，待项目定稿后替换。",
 					image: "./assets/placeholder-project/cover.png",
 					video: "./assets/placeholder-project/loading-loop.mp4",
+					playUrl: "https://candy-chase.netlify.app",
 					client: "占位项目（待定）",
 					year: "2026",
 					role: "待定",
@@ -2531,7 +2557,7 @@
 				previousCaseFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
 				address.textContent = `Portfolio / ${item.title}`
 				const heroMedia = item.video
-					? `<video class="project-case-video" src="${item.video}" poster="${item.image}" autoplay muted loop playsinline controls preload="metadata" aria-label="${item.title} 项目视频"></video>`
+					? `<div class="project-case-video-wrap"><video class="project-case-video" src="${item.video}" poster="${item.image}" autoplay muted loop playsinline preload="metadata" aria-label="${item.title} 项目视频"></video>${item.playUrl ? `<a class="project-case-play" href="${item.playUrl}" target="_blank" rel="noopener" aria-label="打开试玩页面（新标签页）"><img src="./assets/placeholder-project/click-to-play.png" alt=""></a>` : ""}</div>`
 					: `<img class="project-case-cover" src="${item.image}" alt="${item.title} 项目封面">`
 				scroll.innerHTML = `
 					${heroMedia}
